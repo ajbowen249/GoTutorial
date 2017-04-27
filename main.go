@@ -1,16 +1,24 @@
 package main
 
-import (
-	"fmt"
-	"github.com/ajbowen249/GoTutorial/table"
-)
+import "fmt"
 
 func main() {
-	tb := table.New()
-	tb.CellAlign = table.CENTERLEFTBIAS
-	tb.AddColumn("XValues")
-	tb.AddRow("1111")
-	tb.Output(func(s string) {
-		fmt.Println(s)
-	})
+	fmt.Println("hello, world")
+	var x int
+	x = 3
+
+	y := 1.23
+
+	z := false
+
+	fmt.Printf("x: %v y: %v z: %v\n", x, y, z)
+
+	var hiddenInt interface{}
+	hiddenInt = 12
+	exposedInt := hiddenInt.(int)
+
+	floatyInt := 15.0
+	truncatedInt := int(floatyInt)
+
+	fmt.Printf("exposedInt: %v truncatedInt: %v\n", exposedInt, truncatedInt)
 }
