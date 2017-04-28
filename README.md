@@ -2,21 +2,6 @@
 # Go: Is it cool? _Why_ is it cool? Let's find out!
 [Go](https://golang.org/) is a modern systems programming language developed primarily by Google with a focus on server development. Its design goals are focused around shedding the weight of old popular systems languages, throwing out things like extesive type hierarchy. Go does have a runtime environment that manages garbage collection, but it is small and compiled into the executable, with no virtual machine or framework to install.
 
-## Categoris to cover (if this is still here, I have failed.)
-- Threading
-- documentation & examples
-- testing
-- OOP (how it's different, pointers, anonymous/literal) DONE!
-- functions DONE
-- typecasting DONE!
-- for (range) DONE!
-- short statements DONE!
-- switch DONE!
-- defer
-- slices/arrays DONE!
-- maps DONE!
-- closures DONE!
-
 ## Let's Get Going
 If you haven't already, run through the [setup and install](https://golang.org/doc/install). By this point, you should have something like:
 ```go
@@ -404,7 +389,7 @@ func main() {
     fmt.Println("Done!")
 }
 ```
-The first thing you'll notice is the `go` keyword. Threads in Go are called *goroutines*. Unlike many languages, You don't get handles to threads to join on. To run a new thread, all you need to do is `go someFunction()`. *Goroutine*s always operate on a function call, which is why we need the extra `()` at the end of the function literals in the example above. When we examine what this program does, we see that we have two threads operating on the same `i` variable, so we mutex around accessing it as you would expect, though I did make a special `lock` function for convenience. When we run this, it will print each value of `i` a non-deterministic number of times from 0 to 9. Let's re-write this using a new mechanism called a `chan`nel:
+The first thing you'll notice is the `go` keyword. Threads in Go are called *goroutines*. Unlike many languages, You don't get handles to threads to join on. To run a new thread, all you need to do is `go someFunction()`. *Goroutine*s always operate on a function call, which is why we need the extra `()` at the end of the function literals in the example above. When we examine what this program does, we see that we have two threads operating on the same `i` variable, so we mutex around accessing it as you would expect, though I did make a special `lock` function for convenience. When we run this, it will print each value of `i` a non-deterministic number of times from 0 to 9. Let's re-write this using a new mechanism:
 ```go
 package main
 
@@ -435,7 +420,7 @@ func consume(target int, value chan int) {
 ```
 There are a few improvements here. First, running the program will only print once per new value. More importantly, we're now passing data through a special construct called a `chan`nel. `chan`nels can be thought of as a sort of "pipe" between threads that allow for transport of specific data. If you look at our `produce` function, you can see that we send `i` through the `value` chan using the `<-` operator. In `consume`, we receive a value from the `value` chan with the same operator. Think of `<-` as an arrow that points where data is going. By default, sending data will block until a receiver has read the previous value, and receiving will block until a value is present.
 
-If we had declared our `chan`nel with `value := make(chan int, 5)`, we would have a *buffered `chan`nel*. In this case, `produce` will not block writing so long as the `chan`nel has less than 5 values in its buffer. Reading still works the same way as an unbuffered `chan`nel, but with the chance that a several values will be immediately available.
+If we had declared our `chan`nel with `value := make(chan int, 5)`, we would have a *buffered `chan`nel*. In this case, `produce` will not block writing so long as the `chan`nel has less than 5 values in its buffer. Reading still works the same way as an unbuffered `chan`nel, but with the chance that a value will be immediately available in some iterations.
 
 There's an even simpler way to write this program:
 ```go
@@ -463,7 +448,7 @@ func consume(value chan int) {
     }
 }
 ```
-The big differences here are the `close` call in `produce`, and the simpler loop in `consume`. With this mechanism, a receiver of data from a `chan`nel can use the `range` keyword to loop over it like an iterable, and the loop will exit when the `chan`nel has been `close`d. Similar to the `map`, you can also assign the result of a `chan`nel read to two variables, like `value, open := <- channel`, and get a flag signaling that the `chan`nel has been closed. There are some other [advanced topics](https://tour.golang.org/concurrency/5) with `chan`nels to discover.
+The big differences here are the `close` call in `produce`, and the simpler loop in `consume`. With this mechanism, a receiver of data from a `chan`nel can use the `range` keyword to loop over it like an iterable, and the loop will exit when the `chan`nel has been `close`d. Similar to the `map`, you can also assign the result of a `chan`nel read to two variables, like `value, open := <- channel`, and get a flag signaling that the `chan`nel is still open. There are some other [advanced topics](https://tour.golang.org/concurrency/5) with `chan`nels to discover.
 
 There's another way we could have `close`d our `chan`nel:
 ```go
@@ -476,4 +461,55 @@ func produce(num int, value chan int) {
 }
 ```
 
-The `defer` keyword stacks up a function call to execute after the function has returned, and will still exit even if the function `panic`s. If you have multiple `defer`s in a function, their operations will stack, not queue.
+The `defer` keyword stacks up a function call to execute after the function has returned, and will still exit even if the function `panic`s. It's often used for resource cleanup. If you have multiple `defer`s in a function, their operations will stack, not queue.
+
+# Go In Production
+I've mentioned `package`s a few times now. `package`s are Go's concept of libraries. The current state of Go's dependency management is somewhat infantile, buf if you see a package you like online, you can `go get` it from the command line. You can even get this tutorial as a package. How about you do that, and meet me back on the other side:
+```
+go get github.com/ajbowen249/GoTutorial
+```
+When that completes, you should have the code for this repository in `$GOPATH/src/github.com/ajbowen249/GoTutorial`. If you `go install`, you'll get an executable at `$GOPATH/bin/GoTutorial` that does some basic benchmarking of two sorting algorithms and prints out the data. The app is comprised of code lazily copied in and slightly tweaked from my [GoSandbox](https://github.com/ajbowen249/GoSandbox) repo.
+
+Examining this project, we have this structure:
+```
++GoTutorial
+├—+algorithms
+│ ├—algorithms.go
+│ └—algorithms_test.go
+│
+├—+datastructures
+│ ├—binaryTree.go
+│ ├—linkedList.go
+│ └—datastructures_test.go
+│
+├—+table
+│ ├—table.go
+│ └—table_test.go
+│
+└—main.go
+```
+The primary `package` here is `GoTutorial`, and the `algorithms`, `datastructures`, and `table` packages are all relative to it. Each package has a complimentary "_test.go" file. Go has a built-in system for running unit tests. If you wish to run the tests in this package, run `go test ./...` from the command line (note that there are three dots after the slash). The basics of Go's testing library are fairly self-explanatory if you examine the test files, and more information is available [here](https://www.golang-book.com/books/intro/12).
+
+If you take a look at main.go, you'll see this near the top:
+```go
+import (
+    "fmt"
+    al "github.com/ajbowen249/GoTutorial/algorithms"
+    ds "github.com/ajbowen249/GoTutorial/datastructures"
+    "github.com/ajbowen249/GoTutorial/table"
+    "math/rand"
+    "time"
+)
+```
+There are two new things here. First, note that the fully-qualified names of the packages also include "github.com" and my handle. If you started from scratch, you could find these packages in your `$GOPATH/src` with their fully-qualified name as the directory. Second, note that I give the aliased names `al` and `ds` to `algorithms` and `datastructures`, respectively. This is mainly for convenience later on.
+
+If you want to see documentation on this package, use `go doc` in your command line. You won't see much just running that from the GoTutorial root, so try running `go doc algorithms`. This will print out a high-level overview of the `algorithms` package. `go doc algorithms.SortInt` will expand on the documentation of the `SortInt` function. The high-level overview will list all of the *exported* functions in the package, so anything that doesn't start with a capitol letter will not be seen here. Take a look at the algorithms/algorithms.go file. You'll see special comments above each function. Your Go linter will be very picky about how these are worded, and they are what shows up in the result of the `go doc` tool.
+
+There is also a far prettier way to see this documentation. try running `godoc -http=:8080`. Note that the command here is `godoc`, not `go doc` (confused? [you're not alone](http://whipperstacker.com/2015/09/30/go-documentation-godoc-godoc-godoc-org-and-go-doc/)). Now open up [http://localhost:8080/pkg/](http://localhost:8080/pkg/). `godoc` is running a complete server hosting an offline version of the Go documentation, and if you look through the packages section, you'll see the nicely-formatted documentation of the standard library alongside every package you have in your `$GOPATH`, even your own code!
+
+## Resources
+That's it! Here are a few links for some more information, should you wish to look:
+- [The Go homepage](https://golang.org/)
+- [A Tour of Go](https://tour.golang.org/welcome/1)
+- [Effective Go](https://golang.org/doc/effective_go.html)
+- [More Go Styling and Convention](https://github.com/golang/go/wiki/CodeReviewComments)

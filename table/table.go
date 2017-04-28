@@ -1,3 +1,5 @@
+// Package table provides an object for printing out nicely
+// formatted tables to standard output.
 package table
 
 type Table struct {

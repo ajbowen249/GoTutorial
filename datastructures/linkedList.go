@@ -1,20 +1,25 @@
+// Package dataStructures implements an integer binary tree
+// and an integer linked list.
 package dataStructures
 
 import (
 	"fmt"
 )
 
+// IntLinkedList is an integer linked list.
 type IntLinkedList struct {
-	Head *IntLLNode
-	Tail *IntLLNode
+	Head *IntLLNode // Head is the head node of the list.
+	Tail *IntLLNode // Tail is the head node of the list.
 }
 
+// IntLLNode is a node in an integer linked list.
 type IntLLNode struct {
 	Value    int
 	Previous *IntLLNode
 	Next     *IntLLNode
 }
 
+// Add creates a new node with the given value and inserts it into the linked list.
 func (ll *IntLinkedList) Add(newValue int) {
 	newNode := new(IntLLNode)
 	newNode.Value = newValue
@@ -30,6 +35,7 @@ func (ll *IntLinkedList) Add(newValue int) {
 	ll.Tail = newNode
 }
 
+// Get Seeks through the linked list and returns the node at the given index.
 func (ll *IntLinkedList) Get(index int) int {
 	current := ll.Head
 
@@ -45,6 +51,7 @@ func (ll *IntLinkedList) Get(index int) int {
 	return current.Value
 }
 
+// Print prints the list to standard output.
 func (ll *IntLinkedList) Print() {
 	current := ll.Head
 	for current != nil {

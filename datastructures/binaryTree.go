@@ -1,14 +1,17 @@
 package dataStructures
 
+// IntBinaryNode is an integer node in a binary tree.
 type IntBinaryNode struct {
 	Value       int
 	Left, Right *IntBinaryNode
 }
 
+// IntBinaryTree is binary tree comprised of IntBinaryNode.
 type IntBinaryTree struct {
 	head *IntBinaryNode
 }
 
+// Add created a new node with the given value and adds it to the tree.
 func (tree *IntBinaryTree) Add(val int) {
 	newNode := new(IntBinaryNode)
 	newNode.Value = val
@@ -39,6 +42,7 @@ func (tree *IntBinaryTree) Add(val int) {
 	}
 }
 
+// VisitAscending recursively traverses the binary tree and applies the visit function to each node.
 func (tree *IntBinaryTree) VisitAscending(visit func(node *IntBinaryNode)) {
 	visitAscending_rec(tree.head, visit)
 }

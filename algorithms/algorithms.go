@@ -1,3 +1,4 @@
+// Package algorithms implements a number of basic mathematical functions.
 package algorithms
 
 import (
@@ -13,7 +14,7 @@ func Fac(n int64) int64 {
 	return n * Fac(n-1)
 }
 
-// MinInt32 return the value and index of the smallest int in vals.
+// MinInt return the value and index of the smallest int in vals.
 // The first return is the value, and the second is the index of that value.
 func MinInt(vals []int) (int, int) {
 	return MinIntAfter(vals, -1)
