@@ -65,7 +65,7 @@ Here we've made an *array*. *Arrays* in Go look like most other languages. They 
     fmt.Printf("0: %v, 1: %v, 2: %v\n", slice[0], slice[1], slice[2])
 ```
 
-*Slice*s look more or less like how you would expect an *array* to look. Behind the scenes, they are basically references to existing arrays that the runtime keeps around, and if you try to append a value beyond their allocated capacity, they will be moved. You can get the length of a slice or array by passing it to the `len()` function, and the capacity of the allocated array for a slice with the `cap()` function. Usage of arrays and slices is a deep subject beyond the scope of this tutorial, though more information is available [here](https://blog.golang.org/go-slices-usage-and-internals).
+*Slice*s look more or less like how you would expect an *array* to look. Behind the scenes, they are basically references to existing arrays that the runtime keeps around, and if you try to append a value beyond their allocated capacity, they will be moved, sort of like `std::vector<t>` from the C++ standard library. You can get the length of a slice or array by passing it to the `len()` function, and the capacity of the allocated array for a slice with the `cap()` function. Usage of arrays and slices is a deep subject beyond the scope of this tutorial, though more information is available [here](https://blog.golang.org/go-slices-usage-and-internals).
 
 Go has support for another common data type, the `map`:
 ```go
@@ -265,7 +265,7 @@ Function type declarations are just like function signature lines, but without n
 
     doCompare(12, 1, greater, printIfFalse)
 ```
-Which means you can use functions anonymously:
+You can also use functions anonymously:
 ```go
     doCompare(12, 12, func(x int, y int) bool {
         return x == y
@@ -320,7 +320,7 @@ We can also omit values and get the type's defaults:
     point1 := point{y: 6}
     point2 := point{}
 ```
-Here's where things start to get weird: Go's does not have keywords like "public" and "private". Go has different concepts of *exported* and *unexported*. Within a `package`, Any function, `struct` method, or `struct` field whose name starts with a capitol letter is considered *exported*, and is visible outside of the package. Otherwise, they are *unexported*, and are only usable from within a package. This can be useful when you write unit tests, as `struct` fields can be examined from a test and behavior can be white-box-tested if you're into that sort of thing. This has two main drawbacks to watch out for:
+Here's where things start to get weird: Go does not have keywords like "public" and "private". Go has different concepts of *exported* and *unexported*. Within a `package`, Any function, `struct` method, or `struct` field whose name starts with a capitol letter is considered *exported*, and is visible outside of the package. Otherwise, they are *unexported*, and are only usable from within a package. This can be useful when you write unit tests, as `struct` fields can be examined from a test and behavior can be white-box-tested if you're into that sort of thing. This has two main drawbacks to watch out for:
 - Design patterns like having accessor methods for property fields are still encouraged, but difficult to enforce from within a package.
 - Forgetting to name things against this convention can lead to headaches when you need to refactor a name just to use it in another package.
 
@@ -334,7 +334,7 @@ func Print(val stringable) {
     fmt.Println(val.ToString())
 }
 ```
-We can now call `Print` on an instance of our `point`, without having to add anything to the declaration of `point`. If a type doesn't have a function it needs to satisfy at type assertion, the compiler will complain. Since the system is so lightweight, `interface`s can be declared anonymously:
+We can now call `Print` on an instance of our `point`, without having to add anything to the declaration of `point`. If a type doesn't have a function it needs to satisfy a type assertion, the compiler will complain. Since the system is so lightweight, `interface`s can be declared anonymously:
 ```go
 func Print(val interface {
     ToString() string
@@ -461,10 +461,10 @@ func produce(num int, value chan int) {
 }
 ```
 
-The `defer` keyword stacks up a function call to execute after the function has returned, and will still exit even if the function `panic`s. It's often used for resource cleanup. If you have multiple `defer`s in a function, their operations will stack, not queue.
+The `defer` keyword stacks up a function call to execute after the function has returned, and will still execute even if the function `panic`s. It's often used for resource cleanup. If you have multiple `defer`s in a function, their operations will stack, not queue.
 
 # Go In Production
-I've mentioned `package`s a few times now. `package`s are Go's concept of libraries. The current state of Go's dependency management is somewhat infantile, buf if you see a package you like online, you can `go get` it from the command line. You can even get this tutorial as a package. How about you do that, and meet me back on the other side:
+I've mentioned `package`s a few times now. `package`s are Go's concept of libraries. The [current state of Go's dependency management](https://github.com/golang/go/wiki/PackageManagementTools) is somewhat infantile, buf if you see a package you like online, you can `go get` it from the command line. You can even get this tutorial as a package. How about you do that, and meet me back on the other side:
 ```
 go get github.com/ajbowen249/GoTutorial
 ```
