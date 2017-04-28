@@ -3,22 +3,16 @@ package main
 import "fmt"
 
 func main() {
-	fmt.Println("hello, world")
-	var x int
-	x = 3
+	bigger, _ := max2(13, 13)
+	fmt.Printf("%v is bigger.\n", bigger)
+}
 
-	y := 1.23
-
-	z := false
-
-	fmt.Printf("x: %v y: %v z: %v\n", x, y, z)
-
-	var hiddenInt interface{}
-	hiddenInt = 12
-	exposedInt := hiddenInt.(int)
-
-	floatyInt := 15.0
-	truncatedInt := int(floatyInt)
-
-	fmt.Printf("exposedInt: %v truncatedInt: %v\n", exposedInt, truncatedInt)
+func max2(val1 int, val2 int) (int, bool) {
+	if val1 == val2 {
+		return val1, true
+	} else if val1 > val2 {
+		return val1, false
+	} else {
+		return val2, false
+	}
 }
