@@ -144,9 +144,9 @@ Erase everything in your existing `main()` function if you want, and call `max2`
     fmt.Printf("%v is bigger.\n", bigger)
 ```
 
-Underscores in Go act as placeholders for symbol names that syntactically must exist, but are not being used. Go is very picky about unused bindings, and will not compile with them (the same also goes for unused imports).
+Underscores in Go act as placeholders for symbol names that syntactically must exist, but are not being used. Go is very picky about unused bindings, and will not compile with them (the same goes for unused imports).
 
-By now, I bet you're thinking, "cool, no semicolons." You're in for some mild disappointment. Go, like many languages, organizes blocks of code into statements. Go is very picky about its styling, and, for example, will not compile with clamshell-style bracing, only K&R. Technically, having a semicolon everywhere you would expect them is valid Go syntax, but since Go is picky about its styling, it can figure out where statements begin and end without the usual verbosity. One place you will still use semicolons (at least, idiomatically) is in *short statements*. To understand them, we'll start with something familiar:
+By now, I bet you're thinking, "cool, no semicolons." You're in for some mild disappointment. Go, like many languages, organizes blocks of code into statements. Go is very picky about its styling, and, for example, will not compile with Allman-style bracing, only K&R. Technically, having a semicolon everywhere you would expect them is valid Go syntax, but since Go is picky about its styling, it can figure out where statements begin and end without the usual verbosity. One place you will still use semicolons (at least, idiomatically) is in *short statements*. To understand them, we'll start with something familiar:
 ```go
    for i := 0; i < 10; i++ {
         fmt.Println(i)
@@ -176,7 +176,7 @@ This is Go's equivalent of a basic while loop:
         i++
     }
 ```
-There are also `break` and `continue` keywords that act like those in other languages. Go also has its own special kind of automatic `for`:
+There are `break` and `continue` keywords that act like those in other languages. Go has its own special kind of automatic `for`:
 ```go
     vals := []int{1, 5, 2, 9}
 
@@ -219,7 +219,7 @@ Notice that there is no `break` statement used here. Go flips the logic of the t
         fmt.Println("It was bigger than 0")
     }
 ```
-You can also `switch` without a variable with a set of boolean expression `case`s as an alternative to a big `if`...`else` but with the ability to `fallthrough`:
+You can `switch` without a variable with a set of boolean expression `case`s as an alternative to a big `if`...`else` but with the ability to `fallthrough`:
 ```go
     val := 3
     switch {
@@ -280,7 +280,7 @@ Function type declarations are just like function signature lines, but without n
 
     doCompare(12, 1, greater, printIfFalse)
 ```
-Which means you can also use functions anonymously:
+Which means you can use functions anonymously:
 ```go
     doCompare(12, 12, func(x int, y int) bool {
         return x == y
@@ -299,31 +299,31 @@ package main
 import "fmt"
 
 func main() {
-	point1 := point{0, 0}
-	fmt.Println(point1.ToString())
+    point1 := point{0, 0}
+    fmt.Println(point1.ToString())
 
-	point1.TranslateX(5)
-	fmt.Println(point1.ToString())
+    point1.TranslateX(5)
+    fmt.Println(point1.ToString())
 
-	point1.TranslateY(-3)
-	fmt.Println(point1.ToString())
+    point1.TranslateY(-3)
+    fmt.Println(point1.ToString())
 }
 
 type point struct {
-	x int
-	y int
+    x int
+    y int
 }
 
 func (p point) ToString() string {
-	return fmt.Sprintf("(%v, %v)", p.x, p.y)
+    return fmt.Sprintf("(%v, %v)", p.x, p.y)
 }
 
 func (p point) TranslateX(delta int) {
-	p.x += delta
+    p.x += delta
 }
 
 func (p point) TranslateY(delta int) {
-	p.y += delta
+    p.y += delta
 }
 ```
 Struct methods are implemented by adding an argument taking an instance of the particular Struct before the function name. You can implement these functions anywhere you like, so you can even extend `struct`s from the standard or third-party libraries. When we instantiated our `point`, we supplied values in the order that they are declared in the `struct` itself. We can also name them explicitly:
@@ -342,19 +342,138 @@ Here's where things start to get weird: Go's does not have keywords like "public
 Go does not have polymorphism, but it does have `interface`s:
 ```go
 type stringable interface {
-	ToString() string
+    ToString() string
 }
 
 func Print(val stringable) {
-	fmt.Println(val.ToString())
+    fmt.Println(val.ToString())
 }
 ```
-We can now call `Print` on an instance of our `point`, without having to add anything to the declaration of `point`. If a type doesn't have a function it needs to satisfy at type assertion, the compiler will complain. Since the system is so lightweight, `interface`s can also be declared anonymously:
+We can now call `Print` on an instance of our `point`, without having to add anything to the declaration of `point`. If a type doesn't have a function it needs to satisfy at type assertion, the compiler will complain. Since the system is so lightweight, `interface`s can be declared anonymously:
 ```go
 func Print(val interface {
-	ToString() string
+    ToString() string
 }) {
-	fmt.Println(val.ToString())
+    fmt.Println(val.ToString())
 }
 ```
 It should now be clear what we meant earlier by `interface{}`. What we meant was, "this is a variable that implements this anonymous interface," and the `interface` we declared there was empty, so anything will satisfy it.
+
+Go has a fun and unique threading model. Let's start with something familiar (note that this is NOT idiomatic Go code):
+```go
+package main
+
+import (
+    "fmt"
+    "sync"
+    "time"
+)
+
+func main() {
+    mutex := sync.Mutex{}
+    i := 0
+
+    lock := func(action func()) {
+        mutex.Lock()
+        action()
+        mutex.Unlock()
+    }
+
+    done := func() bool {
+        var done bool
+        lock(func() { done = i >= 10 })
+        return done
+    }
+
+    go func() {
+        for !done() {
+            lock(func() { fmt.Println(i) })
+        }
+    }()
+
+    go func() {
+        for !done() {
+            lock(func() { i++ })
+        }
+    }()
+
+    for !done() {
+        time.Sleep(10 * time.Millisecond)
+    }
+
+    fmt.Println("Done!")
+}
+```
+The first thing you'll notice is the `go` keyword. Threads in Go are called *goroutines*. Unlike many languages, You don't get handles to threads to join on. To run a new thread, all you need to do is `go someFunction()`. *Goroutine*s always operate on a function call, which is why we need the extra `()` at the end of the function literals in the example above. When we examine what this program does, we see that we have two threads operating on the same `i` variable, so we mutex around accessing it as you would expect, though I did make a special `lock` function for convenience. When we run this, it will print each value of `i` a non-deterministic number of times from 0 to 9. Let's re-write this using a new mechanism called a `chan`nel:
+```go
+package main
+
+import "fmt"
+
+func main() {
+    value := make(chan int)
+    go produce(10, value)
+    consume(9, value)
+}
+
+func produce(num int, value chan int) {
+    for i := 0; i < num; i++ {
+        value <- i
+    }
+}
+
+func consume(target int, value chan int) {
+    for {
+        i := <-value
+        fmt.Println(i)
+        if i == target {
+            break
+        }
+    }
+}
+
+```
+There are a few improvements here. First, running the program will only print once per new value. More importantly, we're now passing data through a special construct called a `chan`nel. `chan`nels can be thought of as a sort of "pipe" between threads that allow for transport of specific data. If you look at our `produce` function, you can see that we send `i` through the `value` chan using the `<-` operator. In `consume`, we receive a value from the `value` chan with the same operator. Think of `<-` as an arrow that points where data is going. By default, sending data will block until a receiver has read the previous value, and receiving will block until a value is present.
+
+If we had declared our `chan`nel with `value := make(chan int, 5)`, we would have a *buffered `chan`nel*. In this case, `produce` will not block writing so long as the `chan`nel has less than 5 values in its buffer. Reading still works the same way as an unbuffered `chan`nel, but with the chance that a several values will be immediately available.
+
+There's an even simpler way to write this program:
+```go
+package main
+
+import "fmt"
+
+func main() {
+    value := make(chan int)
+    go produce(10, value)
+    consume(value)
+}
+
+func produce(num int, value chan int) {
+    for i := 0; i < num; i++ {
+        value <- i
+    }
+
+    close(value)
+}
+
+func consume(value chan int) {
+    for i := range value {
+        fmt.Println(i)
+    }
+}
+```
+The big differences here are the `close` call in `produce`, and the simpler loop in `consume`. With this mechanism, a receiver of data from a `chan`nel can use the `range` keyword to loop over it like an iterable, and the loop will exit when the `chan`nel has been `close`d. Similar to the `map`, you can also assign the result of a `chan`nel read to two variables, like `value, open := <- channel`, and get a flag signaling that the `chan`nel has been closed. There are some other [advanced topics](https://tour.golang.org/concurrency/5) with `chan`nels to discover.
+
+There's another way we could have `close`d our `chan`nel:
+```go
+func produce(num int, value chan int) {
+    defer close(value)
+
+    for i := 0; i < num; i++ {
+        value <- i
+    }
+}
+```
+
+The `defer` keyword stacks up a function call to execute after the function has returned, and will still exit even if the function `panic`s. If you have multiple `defer`s in a function, their operations will stack, not queue.

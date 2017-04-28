@@ -3,36 +3,22 @@ package main
 import "fmt"
 
 func main() {
-	point1 := point{y: 6}
-	point2 := point{}
-	Print(point1)
-
-	point2.TranslateX(5)
-	Print(point2)
-
-	point1.TranslateY(-3)
-	Print(point1)
+	value := make(chan int, 5)
+	go produce(10, value)
+	consume(value)
 }
 
-type point struct {
-	x int
-	y int
+func produce(num int, value chan int) {
+	defer close(value)
+	defer fmt.Println("done!")
+
+	for i := 0; i < num; i++ {
+		value <- i
+	}
 }
 
-func (p point) ToString() string {
-	return fmt.Sprintf("(%v, %v)", p.x, p.y)
-}
-
-func (p point) TranslateX(delta int) {
-	p.x += delta
-}
-
-func (p point) TranslateY(delta int) {
-	p.y += delta
-}
-
-func Print(val interface {
-	ToString() string
-}) {
-	fmt.Println(val.ToString())
+func consume(value chan int) {
+	for i := range value {
+		fmt.Println(i)
+	}
 }
