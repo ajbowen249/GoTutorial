@@ -6,7 +6,7 @@
 - Threading
 - documentation & examples
 - testing
-- OOP (how it's different, pointers, anonymous/literal)
+- OOP (how it's different, pointers, anonymous/literal) DONE!
 - functions DONE
 - typecasting DONE!
 - for (range) DONE!
@@ -292,4 +292,69 @@ Which means you can also use functions anonymously:
         }
     })
 ```
-Functions as declared in the previous two examples can capture variables in a closure like other languages.
+Functions as declared in the previous two examples can capture variables in a closure like other languages. Go has lightweight Object-Oriented Programming concepts:
+```go
+package main
+
+import "fmt"
+
+func main() {
+	point1 := point{0, 0}
+	fmt.Println(point1.ToString())
+
+	point1.TranslateX(5)
+	fmt.Println(point1.ToString())
+
+	point1.TranslateY(-3)
+	fmt.Println(point1.ToString())
+}
+
+type point struct {
+	x int
+	y int
+}
+
+func (p *point) ToString() string {
+	return fmt.Sprintf("(%v, %v)", p.x, p.y)
+}
+
+func (p *point) TranslateX(delta int) {
+	p.x += delta
+}
+
+func (p *point) TranslateY(delta int) {
+	p.y += delta
+}
+```
+Class methods are implemented by adding an argument taking an instance of the particular class before the function name. You can implement these functions anywhere you like, so you can even extend `struct`s from the standard or third-party libraries. When we instantiated our `point`, we supplied values in the order that they are declared in the `struct` itself. We can also name them explicitly:
+```go
+    point1 := point{x: 2, y: 5}
+```
+We can also omit values and get the type's defaults:
+```go
+    point1 := point{y: 6}
+    point2 := point{}
+```
+Here's where things start to get weird: Go's does not have keywords like "public" and "private". Go has different concepts of *exported* and *unexported*. Within a `package`, Any function, `struct` method, or `struct` field whose name starts with a capitol letter is considered *exported*, and is visible outside of the package. Otherwise, they are *unexported*, and are only usable from within a package. This can be useful when you write unit tests, as `struct` fields can be examined from a test and behavior can be white-box-tested. This has two main drawbacks to watch out for:
+- Design patterns like having accessor methods for property fields are still encouraged, but difficult to enforce from within a package.
+- Forgetting to name things against this convention can lead to headaches when you need to refactor a name just to use it in another package.
+
+Go does not have polymorphism, but it does have `interface`s:
+```go
+type stringable interface {
+	ToString() string
+}
+
+func Print(val stringable) {
+	fmt.Println(val.ToString())
+}
+```
+We can now call `Print` on an instance of our `point`, without having to add anything to the declaration of `point`. If a type doesn't have a function it needs to satisfy at type assertion, the compiler will complain. Since the system is so lightweight `interface`s can also be declared anonymously:
+```go
+func Print(val interface {
+	ToString() string
+}) {
+	fmt.Println(val.ToString())
+}
+```
+It should now be clear what we meant earlier by `interface{}`. What we meant was, "this is a variable that implements this anonymous interface," and the `interface` we declared there was empty, so anything will satisfy it.

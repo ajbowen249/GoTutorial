@@ -3,41 +3,36 @@ package main
 import "fmt"
 
 func main() {
-	doCompare(12, 1, greater, printIftrue)
+	point1 := point{y: 6}
+	point2 := point{}
+	Print(point1)
 
-	printIfFalse := func(value bool) {
-		if !value {
-			fmt.Println("false")
-		} else {
-			fmt.Println("not false")
-		}
-	}
+	point2.TranslateX(5)
+	Print(point2)
 
-	doCompare(12, 1, greater, printIfFalse)
-
-	doCompare(12, 12, func(x int, y int) bool {
-		return x == y
-	}, func(equal bool) {
-		if equal {
-			fmt.Println("equal")
-		} else {
-			fmt.Println("not equal")
-		}
-	})
+	point1.TranslateY(-3)
+	Print(point1)
 }
 
-func greater(x int, y int) bool {
-	return x > y
+type point struct {
+	x int
+	y int
 }
 
-func printIftrue(greater bool) {
-	if greater {
-		fmt.Println("true")
-	} else {
-		fmt.Println("not true")
-	}
+func (p point) ToString() string {
+	return fmt.Sprintf("(%v, %v)", p.x, p.y)
 }
 
-func doCompare(x int, y int, compare func(int, int) bool, act func(bool)) {
-	act(compare(x, y))
+func (p point) TranslateX(delta int) {
+	p.x += delta
+}
+
+func (p point) TranslateY(delta int) {
+	p.y += delta
+}
+
+func Print(val interface {
+	ToString() string
+}) {
+	fmt.Println(val.ToString())
 }
