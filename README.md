@@ -60,7 +60,7 @@ On the last line we added, we use a format string. The `fmt.Printf` function tak
 
     fmt.Printf("exposedInt: %v truncatedInt: %v\n", exposedInt, truncatedInt)
 ```
-In the first block, we declare a variable of type `interface{}`. We'll talk more about what `interface{}` means later, but for now, just think of it like an "anything goes" type, like `object` in C#. We then assign it the value of 12, and then assign `hiddenInt.(int)` to `exposedInt`. Go does not have true typecasting. What we're doing here is *asserting* the type of `hiddenInt`. If we were have to given `hiddenInt` the value 12.0, the program would crash since that would make `hiddenInt` a `float64`. Later on down, we assign 15.0 to `floatyInt`, and then assign the result of `int(floatyInt)` to `truncatedInt`. Again, this is not casting, but *converting* the `float64` to an `int` with a function. Ass some more code:
+In the first block, we declare a variable of type `interface{}`. We'll talk more about what `interface{}` means later, but for now, just think of it like an "anything goes" type, like `object` in C#. We then assign it the value of 12, and then assign `hiddenInt.(int)` to `exposedInt`. Go does not have true typecasting. What we're doing here is *asserting* the type of `hiddenInt`. If we were have to given `hiddenInt` the value 12.0, the program would crash since that would make `hiddenInt` a `float64`. Later on down, we assign 15.0 to `floatyInt`, and then assign the result of `int(floatyInt)` to `truncatedInt`. Again, this is not casting, but *converting* the `float64` to an `int` with a function. Add some more code:
 ```go
     var array [2]int
     array[0] = 12
@@ -146,7 +146,7 @@ Erase everything in your existing `main()` function if you want, and call `max2`
 
 Underscores in Go act as placeholders for symbol names that syntactically must exist, but are not being used. Go is very picky about unused bindings, and will not compile with them (the same also goes for unused imports).
 
-By now, I bet you're thinking, "cool, no semicolons". You're in for some mild disappointment. Go, like many languages, organizes blocks of code into statements. Go is very picky about its styling, and, for example, will not compile with clamshell-style bracing, only K&R. Technically, having a semicolon everywhere you would expect them is valid Go syntax, but since Go is picky about its styling, it can figure out where statements begin and end without the usual verbosity. One place you will still use semicolons (at least, idiomatically) is in *short statements*. To understand them, we'll start with something familiar:
+By now, I bet you're thinking, "cool, no semicolons." You're in for some mild disappointment. Go, like many languages, organizes blocks of code into statements. Go is very picky about its styling, and, for example, will not compile with clamshell-style bracing, only K&R. Technically, having a semicolon everywhere you would expect them is valid Go syntax, but since Go is picky about its styling, it can figure out where statements begin and end without the usual verbosity. One place you will still use semicolons (at least, idiomatically) is in *short statements*. To understand them, we'll start with something familiar:
 ```go
    for i := 0; i < 10; i++ {
         fmt.Println(i)
@@ -176,7 +176,7 @@ This is Go's equivalent of a basic while loop:
         i++
     }
 ```
-There are also `break` and `continue` keywords that act those in other languages. Go also has its own special kind of automatic `for`:
+There are also `break` and `continue` keywords that act like those in other languages. Go also has its own special kind of automatic `for`:
 ```go
     vals := []int{1, 5, 2, 9}
 
@@ -314,19 +314,19 @@ type point struct {
 	y int
 }
 
-func (p *point) ToString() string {
+func (p point) ToString() string {
 	return fmt.Sprintf("(%v, %v)", p.x, p.y)
 }
 
-func (p *point) TranslateX(delta int) {
+func (p point) TranslateX(delta int) {
 	p.x += delta
 }
 
-func (p *point) TranslateY(delta int) {
+func (p point) TranslateY(delta int) {
 	p.y += delta
 }
 ```
-Class methods are implemented by adding an argument taking an instance of the particular class before the function name. You can implement these functions anywhere you like, so you can even extend `struct`s from the standard or third-party libraries. When we instantiated our `point`, we supplied values in the order that they are declared in the `struct` itself. We can also name them explicitly:
+Struct methods are implemented by adding an argument taking an instance of the particular Struct before the function name. You can implement these functions anywhere you like, so you can even extend `struct`s from the standard or third-party libraries. When we instantiated our `point`, we supplied values in the order that they are declared in the `struct` itself. We can also name them explicitly:
 ```go
     point1 := point{x: 2, y: 5}
 ```
@@ -335,7 +335,7 @@ We can also omit values and get the type's defaults:
     point1 := point{y: 6}
     point2 := point{}
 ```
-Here's where things start to get weird: Go's does not have keywords like "public" and "private". Go has different concepts of *exported* and *unexported*. Within a `package`, Any function, `struct` method, or `struct` field whose name starts with a capitol letter is considered *exported*, and is visible outside of the package. Otherwise, they are *unexported*, and are only usable from within a package. This can be useful when you write unit tests, as `struct` fields can be examined from a test and behavior can be white-box-tested. This has two main drawbacks to watch out for:
+Here's where things start to get weird: Go's does not have keywords like "public" and "private". Go has different concepts of *exported* and *unexported*. Within a `package`, Any function, `struct` method, or `struct` field whose name starts with a capitol letter is considered *exported*, and is visible outside of the package. Otherwise, they are *unexported*, and are only usable from within a package. This can be useful when you write unit tests, as `struct` fields can be examined from a test and behavior can be white-box-tested if you're into that sort of thing. This has two main drawbacks to watch out for:
 - Design patterns like having accessor methods for property fields are still encouraged, but difficult to enforce from within a package.
 - Forgetting to name things against this convention can lead to headaches when you need to refactor a name just to use it in another package.
 
@@ -349,7 +349,7 @@ func Print(val stringable) {
 	fmt.Println(val.ToString())
 }
 ```
-We can now call `Print` on an instance of our `point`, without having to add anything to the declaration of `point`. If a type doesn't have a function it needs to satisfy at type assertion, the compiler will complain. Since the system is so lightweight `interface`s can also be declared anonymously:
+We can now call `Print` on an instance of our `point`, without having to add anything to the declaration of `point`. If a type doesn't have a function it needs to satisfy at type assertion, the compiler will complain. Since the system is so lightweight, `interface`s can also be declared anonymously:
 ```go
 func Print(val interface {
 	ToString() string
