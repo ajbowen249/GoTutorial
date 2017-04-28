@@ -9,13 +9,13 @@
 - OOP (how it's different, pointers, anonymous/literal)
 - functions DONE
 - typecasting DONE!
-- for (range)
-- short statements
-- switch
+- for (range) DONE!
+- short statements DONE!
+- switch DONE!
 - defer
 - slices/arrays DONE!
 - maps DONE!
-- closures
+- closures DONE!
 
 ## Let's Get Going
 If you haven't already, run through the [setup and install](https://golang.org/doc/install). By this point, you should have something like:
@@ -240,3 +240,56 @@ You can also `switch` without a variable with a set of boolean expression `case`
     }
 ```
 Note that `case`s in this construct are evaluated in order, so if I were to have a `case val == 3:` at the end, it would not be hit, but it would if it was before the `case val > 2:`.
+
+Functions in Go are first-class. Here's a whole new main file:
+```go
+package main
+
+import "fmt"
+
+func main() {
+    doCompare(12, 1, greater, printIfTrue)
+}
+
+func greater(x int, y int) bool {
+    return x > y
+}
+
+func printIfTrue(value bool) {
+    if value {
+        fmt.Println("true")
+    } else {
+        fmt.Println("not true")
+    }
+}
+
+func doCompare(x int, y int, compare func(int, int) bool, act func(bool)) {
+    act(compare(x, y))
+}
+
+```
+Function type declarations are just like function signature lines, but without names. You can also assign functions to variables:
+```go
+    printIfFalse := func(value bool) {
+        if !value {
+            fmt.Println("false")
+        } else {
+            fmt.Println("not false")
+        }
+    }
+
+    doCompare(12, 1, greater, printIfFalse)
+```
+Which means you can also use functions anonymously:
+```go
+    doCompare(12, 12, func(x int, y int) bool {
+        return x == y
+    }, func(equal bool) {
+        if equal {
+            fmt.Println("equal")
+        } else {
+            fmt.Println("not equal")
+        }
+    })
+```
+Functions as declared in the previous two examples can capture variables in a closure like other languages.

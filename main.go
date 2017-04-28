@@ -3,33 +3,41 @@ package main
 import "fmt"
 
 func main() {
-	val := 3
-	switch {
-	case val == 1:
-		fmt.Println("val is 1")
-	case val == 3:
-		fmt.Println("val is 3")
-	case val > 2:
-		fmt.Println("val is more than 2")
-		fallthrough
-	case val > 1:
-		fmt.Println("val is more than 1")
-		fallthrough
-	case val > 0:
-		fmt.Println("val is more than 0")
-	case val == 9:
-		fmt.Println("val is 9")
-	default:
-		fmt.Println("val is something")
+	doCompare(12, 1, greater, printIftrue)
+
+	printIfFalse := func(value bool) {
+		if !value {
+			fmt.Println("false")
+		} else {
+			fmt.Println("not false")
+		}
+	}
+
+	doCompare(12, 1, greater, printIfFalse)
+
+	doCompare(12, 12, func(x int, y int) bool {
+		return x == y
+	}, func(equal bool) {
+		if equal {
+			fmt.Println("equal")
+		} else {
+			fmt.Println("not equal")
+		}
+	})
+}
+
+func greater(x int, y int) bool {
+	return x > y
+}
+
+func printIftrue(greater bool) {
+	if greater {
+		fmt.Println("true")
+	} else {
+		fmt.Println("not true")
 	}
 }
 
-func max2(val1 int, val2 int) (int, bool) {
-	if val1 == val2 {
-		return val1, true
-	} else if val1 > val2 {
-		return val1, false
-	} else {
-		return val2, false
-	}
+func doCompare(x int, y int, compare func(int, int) bool, act func(bool)) {
+	act(compare(x, y))
 }
