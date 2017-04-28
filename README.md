@@ -146,4 +146,97 @@ Erase everything in your existing `main()` function if you want, and call `max2`
 
 Underscores in Go act as placeholders for symbol names that syntactically must exist, but are not being used. Go is very picky about unused bindings, and will not compile with them (the same also goes for unused imports).
 
-By now, I bet you're thinking, "cool, no semicolons". You're in for some mild disappointment. Go, like many languages, organizes blocks of code into statements. Go is very picky about its styling, and, for example, will not compile with clamshell-style bracing, only K&R. Technically, having a semicolon everywhere you would expect them is valid Go syntax, but since Go is picky about its styling, it can figure out where statements begin and end without the usual verbosity.
+By now, I bet you're thinking, "cool, no semicolons". You're in for some mild disappointment. Go, like many languages, organizes blocks of code into statements. Go is very picky about its styling, and, for example, will not compile with clamshell-style bracing, only K&R. Technically, having a semicolon everywhere you would expect them is valid Go syntax, but since Go is picky about its styling, it can figure out where statements begin and end without the usual verbosity. One place you will still use semicolons (at least, idiomatically) is in *short statements*. To understand them, we'll start with something familiar:
+```go
+   for i := 0; i < 10; i++ {
+        fmt.Println(i)
+    }
+```
+This is pretty self-explanatory, but notice the two semicolons. Like many languages, the `for` loop in Go takes an initialization statement, a conditional statement, and an iterative statement. Since these are all on the same line, the Go compiler still needs the semicolon to delimit them. Why am I explaining this so pedantically? There is an idiomatic pattern in Go that uses *short statement*s in combination with multi-value returns. Here's another way we can call our `max2` function:
+```go
+    if bigger, equal := max2(13, 13); equal {
+        fmt.Println("values are equal!")
+    } else {
+        fmt.Printf("%v is bigger.\n", bigger)
+    }
+```
+
+With this, we get the result of `max2` and provide a branching condition on the same line. More importantly, `bigger` and `equal` now only have scope within this chain of `if`...`else` blocks. This is often used to help clean up areas where multiple functions that return a result and an error are used in a row.
+
+Going back to our `for` loop, `for` is actually Go's only looping construct. This will loop forever:
+```go
+    for {
+        fmt.Println("Hellooooo")
+    }
+```
+This is Go's equivalent of a basic while loop:
+```go
+    i := 0
+    for i < 10 {
+        i++
+    }
+```
+There are also `break` and `continue` keywords that act those in other languages. Go also has its own special kind of automatic `for`:
+```go
+    vals := []int{1, 5, 2, 9}
+
+    for index, val := range vals {
+        fmt.Printf("%v: %v\n", index, val)
+    }
+```
+This will print out the index and value of each item in the iterable. If you don't want the index or don't want the value, replace its name with an underscore. Go also has `switch` statements:
+```go
+    val := 15
+    switch val {
+    case 12:
+        fmt.Println("It was 12")
+    case 15:
+        fmt.Println("It was 15")
+    default:
+        fmt.Println("It was something")
+    }
+```
+Notice that there is no `break` statement used here. Go flips the logic of the traditional `switch`-`case` structure by automatically breaking at the end of a `case` block, and requiring the `fallthrough` keyword to explicitly fall through to the next case:
+```go
+    val := 3
+    switch val {
+    case 6:
+        fmt.Println("It was bigger than 5")
+        fallthrough
+    case 5:
+        fmt.Println("It was bigger than 4")
+        fallthrough
+    case 4:
+        fmt.Println("It was bigger than 3")
+        fallthrough
+    case 3:
+        fmt.Println("It was bigger than 2")
+        fallthrough
+    case 2:
+        fmt.Println("It was bigger than 1")
+        fallthrough
+    default:
+        fmt.Println("It was bigger than 0")
+    }
+```
+You can also `switch` without a variable with a set of boolean expression `case`s as an alternative to a big `if`...`else` but with the ability to `fallthrough`:
+```go
+    val := 3
+    switch {
+    case val == 1:
+        fmt.Println("val is 1")
+    case val > 2:
+        fmt.Println("val is more than 2")
+        fallthrough
+    case val > 1:
+        fmt.Println("val is more than 1")
+        fallthrough
+    case val > 0:
+        fmt.Println("val is more than 0")
+    case val == 9:
+        fmt.Println("val is 9")
+    default:
+        fmt.Println("val is something")
+    }
+```
+Note that `case`s in this construct are evaluated in order, so if I were to have a `case val == 3:` at the end, it would not be hit, but it would if it was before the `case val > 2:`.
