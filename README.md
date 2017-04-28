@@ -299,11 +299,11 @@ type point struct {
     y int
 }
 
-func (p point) ToString() string {
+func (p *point) ToString() string {
     return fmt.Sprintf("(%v, %v)", p.x, p.y)
 }
 
-func (p point) TranslateX(delta int) {
+func (p *point) TranslateX(delta int) {
     p.x += delta
 }
 
@@ -311,7 +311,7 @@ func (p point) TranslateY(delta int) {
     p.y += delta
 }
 ```
-Struct methods are implemented by adding an argument taking an instance of the particular Struct before the function name. You can implement these functions anywhere you like, so you can even extend `struct`s from the standard or third-party libraries. When we instantiated our `point`, we supplied values in the order that they are declared in the `struct` itself. We can also name them explicitly:
+Struct methods are implemented by adding an argument taking an instance of the particular Struct before the function name. If you need to mutate the struct in a class method, be sure to have your receiver take a pointer, as you will otherwise end up wih a copy and only mutate the copy. You can implement these functions anywhere you like, so you can even extend `struct`s from the standard or third-party libraries. When we instantiated our `point`, we supplied values in the order that they are declared in the `struct` itself. We can also name them explicitly:
 ```go
     point1 := point{x: 2, y: 5}
 ```
