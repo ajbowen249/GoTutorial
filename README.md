@@ -1,5 +1,7 @@
 ![gopher](http://synflood.at/tmp/golang-slides/images/gopher_icon_128.png)
 # Go: Is it cool? _Why_ is it cool? Let's find out!
+*Disclaimer for anyone stumbling here: This is not intended as a comprehensive guide to Go. It is an overview of the language features that I like about Go intended as in introduction to the langauge for my colleagues, and is a part of a [series of challanges and tutorials](https://github.com/ajbowen249/PlusPlusTime).*
+
 [Go](https://golang.org/) is a modern systems programming language developed primarily by Google with a focus on server development. Its design goals are focused around shedding the weight of old popular systems languages, throwing out things like extesive type hierarchy. Go does have a runtime environment that manages garbage collection, but it is small and compiled into the executable, with no virtual machine or framework to install.
 
 ## Let's Get Going
